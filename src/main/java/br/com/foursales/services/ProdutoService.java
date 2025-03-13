@@ -1,26 +1,25 @@
 package br.com.foursales.services;
 
-import br.com.foursales.dao.ProdutoRepository;
-import br.com.foursales.elasticsearch.dao.ProdutoElasticsearchRepository;
-import br.com.foursales.model.Produto;
+import br.com.foursales.dao.ProdutoDAO;
+import br.com.foursales.model.ProdutoEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class ProdutoService {
-    private final ProdutoRepository produtoRepository;
+    private final ProdutoDAO produtoDAO;
 
 
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
-        this.produtoRepository = produtoRepository;
+    public ProdutoService(ProdutoDAO produtoDAO) {
+        this.produtoDAO = produtoDAO;
 
     }
 
-    public List<Produto> listarProdutos() {
-        List<Produto> produtos = (List<Produto>) produtoRepository.findAll();
-        return produtos;
+    public List<ProdutoEntity> listarProdutos() {
+        List<ProdutoEntity> produtoEntities = (List<ProdutoEntity>) produtoDAO.findAll();
+        return produtoEntities;
     }
 
 }

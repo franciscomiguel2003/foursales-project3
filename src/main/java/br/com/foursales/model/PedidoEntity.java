@@ -1,27 +1,27 @@
 package br.com.foursales.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
-@Table(name = "produto")
+@Table(name = "pedido")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Produto {
-
-
+public class PedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
-    private String categoria;
-    private double preco;
-    private int estoque;
+    private Long userId;
+    private boolean pago;
 
+    @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ItemPedidoEntity> itens;
 }
+

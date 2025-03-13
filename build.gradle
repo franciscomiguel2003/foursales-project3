@@ -16,9 +16,12 @@ dependencies {
 
      // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.kafka:spring-kafka'
 
     // Banco de Dados MySQL
     implementation 'com.mysql:mysql-connector-j:8.0.33'
@@ -26,10 +29,11 @@ dependencies {
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
-    // JWT para autenticação
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // Dependência para JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'      // API pública
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'        // Implementação
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'

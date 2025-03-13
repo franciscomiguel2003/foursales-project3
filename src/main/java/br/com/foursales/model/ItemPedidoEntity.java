@@ -6,22 +6,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Entity
-@Table(name = "pedido")
+@Table(name = "itens_pedido")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pedido {
+public class ItemPedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private boolean pago;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ItemPedido> itens;
+    @ManyToOne
+    @JoinColumn(name = "pedido_id")
+    private PedidoEntity pedidoEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "produto_id")
+    private ProdutoEntity produtoEntity;
+
+    private int quantidade;
 }
-

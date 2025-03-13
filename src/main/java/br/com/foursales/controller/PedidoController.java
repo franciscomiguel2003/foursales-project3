@@ -1,6 +1,6 @@
 package br.com.foursales.controller;
 
-import br.com.foursales.model.Pedido;
+import br.com.foursales.model.PedidoEntity;
 import br.com.foursales.services.PedidoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +14,8 @@ class PedidoController {
     }
 
     @PostMapping("/criar")
-    public Pedido criarPedido(@RequestBody Pedido pedido) {
-        return pedidoService.criarPedido(pedido);
+    public PedidoEntity criarPedido(@RequestBody PedidoEntity pedidoEntity) {
+        return pedidoService.criarPedido(pedidoEntity);
     }
 
     @PostMapping("/pagar/{id}")

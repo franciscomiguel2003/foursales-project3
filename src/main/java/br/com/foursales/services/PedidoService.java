@@ -1,30 +1,30 @@
 package br.com.foursales.services;
 
-import br.com.foursales.dao.PedidoRepository;
-import br.com.foursales.model.Pedido;
+import br.com.foursales.dao.PedidoDAO;
+import br.com.foursales.model.PedidoEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PedidoService {
-    private final PedidoRepository pedidoRepository;
+    private final PedidoDAO pedidoDAO;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public PedidoService(PedidoRepository pedidoRepository, KafkaTemplate<String, String> kafkaTemplate) {
-        this.pedidoRepository = pedidoRepository;
+    public PedidoService(PedidoDAO pedidoDAO, KafkaTemplate<String, String> kafkaTemplate) {
+        this.pedidoDAO = pedidoDAO;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public Pedido criarPedido(Pedido pedido) {
-        Pedido savedPedido = pedidoRepository.save(pedido);
-        kafkaTemplate.send("order.created", "Pedido criado: " + savedPedido.getId());
-        return savedPedido;
+    public PedidoEntity criarPedido(PedidoEntity pedidoEntity) {
+        PedidoEntity savedPedidoEntity = pedidoDAO.save(pedidoEntity);
+        kafkaTemplate.send("order.created", "Pedido criado: " + savedPedidoEntity.getId());
+        return savedPedidoEntity;
     }
 
     public void pagarPedido(Long pedidoId) {
-        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow();
-        pedido.setPago(true);
-        pedidoRepository.save(pedido);
-        kafkaTemplate.send("order.paid", "Pedido pago: " + pedido.getId());
+        PedidoEntity pedidoEntity = pedidoDAO.findById(pedidoId).orElseThrow();
+        pedidoEntity.setPago(true);
+        pedidoDAO.save(pedidoEntity);
+        kafkaTemplate.send("order.paid", "Pedido pago: " + pedidoEntity.getId());
     }
 }

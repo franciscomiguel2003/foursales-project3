@@ -1,9 +1,9 @@
 package br.com.foursales.services;
 
-import br.com.foursales.dao.ItemPedidoRepository;
-import br.com.foursales.dao.ProdutoRepository;
-import br.com.foursales.model.ItemPedido;
-import br.com.foursales.model.Produto;
+import br.com.foursales.dao.ItemPedidoDAO;
+import br.com.foursales.dao.ProdutoDAO;
+import br.com.foursales.model.ItemPedidoEntity;
+import br.com.foursales.model.ProdutoEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -11,22 +11,22 @@ import java.util.List;
 
 @Service
 class EstoqueService {
-    private final ProdutoRepository produtoRepository;
-    private final ItemPedidoRepository itemPedidoRepository;
+    private final ProdutoDAO produtoDAO;
+    private final ItemPedidoDAO itemPedidoDao;
 
-    public EstoqueService(ProdutoRepository produtoRepository, ItemPedidoRepository itemPedidoRepository) {
-        this.produtoRepository = produtoRepository;
-        this.itemPedidoRepository = itemPedidoRepository;
+    public EstoqueService(ProdutoDAO produtoDAO, ItemPedidoDAO itemPedidoDao) {
+        this.produtoDAO = produtoDAO;
+        this.itemPedidoDao = itemPedidoDao;
     }
 
     @KafkaListener(topics = "order.paid", groupId = "estoque-group")
     public void atualizarEstoque(String message) {
         Long pedidoId = Long.parseLong(message.replace("Pedido pago: ", ""));
-        List<ItemPedido> itens = itemPedidoRepository.findByPedidoId(pedidoId);
-        for (ItemPedido item : itens) {
-            Produto produto = item.getProduto();
-            produto.setEstoque(produto.getEstoque() - item.getQuantidade());
-            produtoRepository.save(produto);
+        List<ItemPedidoEntity> itens = itemPedidoDao.findByPedidoId(pedidoId);
+        for (ItemPedidoEntity item : itens) {
+            ProdutoEntity produtoEntity = item.getProdutoEntity();
+            produtoEntity.setEstoque(produtoEntity.getEstoque() - item.getQuantidade());
+            produtoDAO.save(produtoEntity);
         }
     }
 }

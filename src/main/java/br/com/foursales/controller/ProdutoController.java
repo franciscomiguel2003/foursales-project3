@@ -1,13 +1,13 @@
 package br.com.foursales.controller;
 
-import br.com.foursales.model.Produto;
+import br.com.foursales.model.ProdutoEntity;
 import br.com.foursales.services.ProdutoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/produto")
+@RequestMapping("/produto")
 public class ProdutoController {
 
     private final ProdutoService produtoService;
@@ -17,7 +17,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/listarProdutos")
-    public List<Produto> listarProdutos() {
+    public List<ProdutoEntity> listarProdutos() {
         return produtoService.listarProdutos();
     }
 
