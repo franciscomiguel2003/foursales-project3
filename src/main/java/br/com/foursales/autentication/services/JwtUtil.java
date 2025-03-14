@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -23,9 +24,7 @@ public class JwtUtil {
     public String generateToken(String username, Collection<?> authorities) {
         String token = "";
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8)); // 32 bytes
-            SecretKey key = Keys.hmacShaKeyFor(hash);
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
             token = Jwts.builder()
                     .setSubject(username)
                     .claim("role", authorities.iterator().next().toString())
@@ -33,8 +32,8 @@ public class JwtUtil {
                     .setExpiration(new Date(System.currentTimeMillis() + UMA_HORA))
                     .signWith(key)
                     .compact();
-        } catch (JwtException | NoSuchAlgorithmException exception) {
-            throw new RuntimeException("Erro na criação de token");
+        } catch (JwtException exception) {
+            throw new RuntimeException("Erro na criação de token", exception);
         }
 
         return token;
@@ -43,15 +42,37 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            Key key = Keys.hmacShaKeyFor(hash); // Consistência com geração
+            System.out.println("Tamanho da chave em bytes (validação): " + hash.length);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
             return claims.getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
             return true;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Erro na validação do token: " + e.getMessage());
         }
     }
 
+    public String extractUsername(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            Key key = Keys.hmacShaKeyFor(hash);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Erro ao extrair username do token: " + e.getMessage());
+        }
+    }
 
 }
