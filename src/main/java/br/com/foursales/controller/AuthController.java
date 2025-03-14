@@ -28,7 +28,6 @@ class AuthController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password) {
 
