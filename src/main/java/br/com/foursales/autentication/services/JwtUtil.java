@@ -1,17 +1,12 @@
 package br.com.foursales.autentication.services;
 
-
-import br.com.foursales.model.Role;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 
@@ -23,19 +18,37 @@ public class JwtUtil {
     private  long UMA_HORA=1000 * 60 * 60;
 
     public String generateToken(String username, Collection<?> authorities) {
+        String token = "";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            String encoded = Base64.getEncoder().encodeToString(hash);
+            token = Jwts.builder()
+                    .setSubject(username)
+                    .claim("role", authorities.iterator().next().toString())
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + UMA_HORA))
+                    .signWith(SignatureAlgorithm.HS256, encoded)
+                    .compact();
+        } catch (JwtException | NoSuchAlgorithmException exception) {
+            throw new RuntimeException("Erro na criação de token");
+        }
 
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("role", authorities.iterator().next().toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + UMA_HORA))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        return token;
+
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
+
 
 }
