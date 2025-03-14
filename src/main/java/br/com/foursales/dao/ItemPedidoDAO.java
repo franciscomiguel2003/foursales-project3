@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface ItemPedidoDAO extends CrudRepository<ItemPedidoEntity, Long> {
-    List<ItemPedidoEntity> findByPedidoId(Long pedidoId);
+    List<ItemPedidoEntity> findByPedidoEntityId(Long pedidoId);
 }

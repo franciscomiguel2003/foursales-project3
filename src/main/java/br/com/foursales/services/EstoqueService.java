@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-class EstoqueService {
+public class EstoqueService {
     private final ProdutoDAO produtoDAO;
     private final ItemPedidoDAO itemPedidoDao;
+
 
     public EstoqueService(ProdutoDAO produtoDAO, ItemPedidoDAO itemPedidoDao) {
         this.produtoDAO = produtoDAO;
@@ -22,7 +23,7 @@ class EstoqueService {
     @KafkaListener(topics = "order.paid", groupId = "estoque-group")
     public void atualizarEstoque(String message) {
         Long pedidoId = Long.parseLong(message.replace("Pedido pago: ", ""));
-        List<ItemPedidoEntity> itens = itemPedidoDao.findByPedidoId(pedidoId);
+        List<ItemPedidoEntity> itens = itemPedidoDao.findByPedidoEntityId(pedidoId);
         for (ItemPedidoEntity item : itens) {
             ProdutoEntity produtoEntity = item.getProdutoEntity();
             produtoEntity.setEstoque(produtoEntity.getEstoque() - item.getQuantidade());

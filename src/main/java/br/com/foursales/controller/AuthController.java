@@ -5,6 +5,7 @@ import br.com.foursales.services.UserService;
 import br.com.foursales.model.Role;
 import br.com.foursales.model.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,8 +28,11 @@ class AuthController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password) {
+
+        System.out.println("TESTE LOGIN");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
         return jwtUtil.generateToken(authentication.getName(), ((User) authentication.getPrincipal()).getAuthorities());
