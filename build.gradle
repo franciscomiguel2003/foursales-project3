@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.2.3'
+    id 'org.springframework.boot' version '3.1.1'
     id 'io.spring.dependency-management' version '1.1.2'
     id 'java'
 }
@@ -30,9 +30,7 @@ dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
 
     // Dependência para JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'      // API pública
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'        // Implementação
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'com.auth0:java-jwt:4.4.0'
 
 
     // Lombok

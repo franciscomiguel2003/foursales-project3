@@ -27,15 +27,16 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-         if(this.role == Role.ADMIN)
-            return List.of( new SimpleGrantedAuthority("ADMIN"),  new SimpleGrantedAuthority("USER"));
-         else
-             return List.of( new SimpleGrantedAuthority("USER"));
+        if(this.role == Role.ADMIN)
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER"));
+        else
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override

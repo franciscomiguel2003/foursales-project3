@@ -1,5 +1,6 @@
 package br.com.foursales.controller;
 
+import br.com.foursales.DTO.LoginResponseDTO;
 import br.com.foursales.DTO.UserDTO;
 import br.com.foursales.autentication.services.JwtUtil;
 import br.com.foursales.model.ProdutoEntity;
@@ -8,6 +9,7 @@ import br.com.foursales.model.UserEntity;
 import br.com.foursales.services.ProdutoService;
 import br.com.foursales.services.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,12 +34,12 @@ class AuthController {
 
 
     @PostMapping("/login")
-    public String login(@RequestBody @Valid UserDTO userDTO) {
+    public ResponseEntity login(@RequestBody @Valid UserDTO userDTO) {
 
         System.out.println("TESTE LOGIN");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.username(), userDTO.password()));
-        return jwtUtil.generateToken(authentication.getName(), ((User) authentication.getPrincipal()).getAuthorities());
+        return ResponseEntity.ok(new LoginResponseDTO(jwtUtil.generateToken((User) authentication.getPrincipal())));
 
     }
 
