@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "produto")
 @Getter
@@ -17,16 +19,19 @@ public class ProdutoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column
     private String nome;
+    @Column
     private String categoria;
-    private Double preco;
-    @Column(name="qtd_estoque")
+    @Column
+    private BigDecimal preco;
+    @Column
     private Integer qtdEstoque;
 
-    public ProdutoEntity(Integer id){
+/*    public ProdutoEntity(Integer id){
         this.id = id;
-    }
-    public ProdutoEntity(Integer id, String nome, String categoria, Double preco, Integer qtdEstoque) {
+    }*/
+    public ProdutoEntity(Integer id, String nome, String categoria, BigDecimal preco, Integer qtdEstoque) {
         this.id = id;
         this.nome = nome;
         this.categoria = categoria;

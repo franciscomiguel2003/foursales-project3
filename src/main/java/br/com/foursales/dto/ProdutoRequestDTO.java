@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import java.math.BigDecimal;
+
 public record ProdutoRequestDTO(
 
         Integer id,
@@ -12,7 +14,7 @@ public record ProdutoRequestDTO(
         @NotBlank
         String categoria,
         @NotNull
-        Double preco,
+        BigDecimal preco,
 
         int qtdEstoque
 

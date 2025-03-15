@@ -1,6 +1,5 @@
 package br.com.foursales.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 public class ResponseFourSales <T>{
 
    private T response;
-    private String erro="";
+    private String msg ="";
 
-    public ResponseFourSales(T entidade, String erro) {
+    public ResponseFourSales(T entidade, String msg) {
         this.response = entidade;
-        this.erro = erro;
+        this.msg = msg;
     }
 
     public static <T> ResponseEntity getResponse(T entidade, String erro, HttpStatus status) {

@@ -20,17 +20,16 @@ public class ItemPedidoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_PEDIDO")
-    @JsonBackReference
     private PedidoEntity pedidoEntity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_PRODUTO")
     private ProdutoEntity produtoEntity;
 
     @Column
-    private BigDecimal valorPagoItem;
+    private BigDecimal valorPago;
 
     private int qtd;
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.repository.cdi.Eager;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -27,9 +28,7 @@ public class PedidoEntity {
     @Column(name = "id_status")
     private Integer idStatus;
 
-
-    @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.PERSIST)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<ItemPedidoEntity> itens;
 
     @Column
@@ -48,7 +47,7 @@ public class PedidoEntity {
 
             itemPedidoListDTO.forEach(i -> {
                     ItemPedidoEntity itemPedidoE = new ItemPedidoEntity();
-                    itemPedidoE.setProdutoEntity(new ProdutoEntity(i.idProduto()));
+                    itemPedidoE.setProdutoEntity(new ProdutoEntity(i.idProduto(),null, null, null, null));
                     itemPedidoE.setQtd(itemPedidoE.getQtd());
                     itemPedidoE.setPedidoEntity(this);
                     itens.add(itemPedidoE);
