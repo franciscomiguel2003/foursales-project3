@@ -34,26 +34,9 @@ class PedidoController {
 
         try {
 
-            PedidoEntity pedido = new PedidoEntity(user.getId().intValue(), StatusPedidoEnum.PENDENTE, pedidoDTO.itemPedidoListDTO());
+            PedidoResponseDTO pedido = pedidoService.criarPedido(user.getId().intValue(), StatusPedidoEnum.PENDENTE, pedidoDTO.itemPedidoListDTO());
 
-            pedido = pedidoService.criarPedido(pedido);
-            PedidoEntity pedido2 = pedidoService.buscarPedidosPorId(pedido.getId());
-            List<ItemPedidoResponseDTO> listItemDTO = new ArrayList<ItemPedidoResponseDTO>();
-            BigDecimal valorTotal = new BigDecimal(0);
-            List<ItemPedidoEntity> listItem = pedido2.getItens().stream().toList();
-
-            pedido2.getItens().forEach(i->{
-                Hibernate.initialize(i.getProdutoEntity());
-                listItemDTO.add(new ItemPedidoResponseDTO(i.getProdutoEntity().getNome(),i.getProdutoEntity().getPreco(),null));
-                valorTotal.add(i.getProdutoEntity().getPreco());
-            });
-
-            var pedidoResponse = new PedidoResponseDTO(
-                    pedido2.getId(),valorTotal,StatusPedidoEnum.valueOf(pedido2.getIdStatus().toString()).toString(), listItemDTO);
-
-
-            return ResponseFourSales.getResponse(pedidoResponse,
-                    "Cadastro efetuado com sucesso", HttpStatus.OK);
+            return ResponseFourSales.getResponse(pedido,"Cadastro efetuado com sucesso", HttpStatus.OK);
         } catch (Exception e ){
             String error = "ERRO CRIAR PEDIDO";
             logger.error(error, e);

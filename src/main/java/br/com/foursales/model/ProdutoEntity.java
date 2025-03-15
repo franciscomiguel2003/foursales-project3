@@ -2,11 +2,13 @@ package br.com.foursales.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "produto")
@@ -19,18 +21,22 @@ public class ProdutoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column
+    @Column (name="nome")
     private String nome;
-    @Column
+    @Column (name="categoria")
     private String categoria;
-    @Column
+    @Column(name="preco")
     private BigDecimal preco;
-    @Column
+    @Column(name="qtd_estoque")
     private Integer qtdEstoque;
 
-/*    public ProdutoEntity(Integer id){
+    @OneToMany(mappedBy = "produtoEntity")
+    private List<ItemPedidoEntity> itemPedidoEntities;
+
+    public ProdutoEntity(Integer id){
         this.id = id;
-    }*/
+    }
+
     public ProdutoEntity(Integer id, String nome, String categoria, BigDecimal preco, Integer qtdEstoque) {
         this.id = id;
         this.nome = nome;

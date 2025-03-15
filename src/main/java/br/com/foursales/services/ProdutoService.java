@@ -30,8 +30,8 @@ public class ProdutoService {
         return  produtoDAO.save(produto);
     }
     public void excluiProduto(Integer id) throws Exception {
-        if(produtoDAO.existsById(id.longValue()))
-             produtoDAO.deleteById(id.longValue());
+        if(produtoDAO.existsById(id))
+             produtoDAO.deleteById(id);
         else
             throw new Exception("Produto não existe");
     }

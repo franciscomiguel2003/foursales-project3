@@ -19,8 +19,8 @@ public class ResponseFourSales <T>{
         this.msg = msg;
     }
 
-    public static <T> ResponseEntity getResponse(T entidade, String erro, HttpStatus status) {
-        ResponseFourSales ra = new ResponseFourSales(entidade, erro);
+    public static <T> ResponseEntity getResponse(T entidade, String msg, HttpStatus status) {
+        ResponseFourSales ra = new ResponseFourSales(entidade, msg);
         return new ResponseEntity<ResponseFourSales>(ra, status);
     }
 }
