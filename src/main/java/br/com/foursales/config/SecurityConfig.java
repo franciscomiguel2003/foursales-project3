@@ -1,8 +1,7 @@
 package br.com.foursales.config;
 
 import br.com.foursales.autentication.services.JwtFilter;
-import br.com.foursales.model.Role;
-import jakarta.servlet.http.HttpServletResponse;
+import br.com.foursales.dto.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,16 +31,23 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Liberar tudo em /auth
-                        .requestMatchers(HttpMethod.GET, "/produto/listarProdutos").hasRole(Role.ADMIN.getRole()) // Liberar tudo em /auth
+                        .requestMatchers(HttpMethod.POST, "/produto/**").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/produto/**").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.DELETE, "/produto/**").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.GET, "/produto/listarProdutos").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/pedido/criarPedido").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
+
+
+
                         .anyRequest().authenticated()
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-/*                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((req, resp, e) -> {
-                            System.out.println("Acesso negado: " + req.getRequestURI() + " - " + e.getMessage());
-                            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-                        })
-                )*/
+//                .exceptionHandling(exception -> exception
+//                        .authenticationEntryPoint((req, resp, e) -> {
+//                            System.out.println("Acesso negado: " + req.getRequestURI() + " - " + e.getMessage());
+//                            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+//                        })
+//                )
                 .build();
     }
 

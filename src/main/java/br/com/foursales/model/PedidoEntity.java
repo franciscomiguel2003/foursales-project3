@@ -1,27 +1,70 @@
 package br.com.foursales.model;
 
+import br.com.foursales.dto.ItemPedidoDTO;
+import br.com.foursales.dto.StatusPedidoEnum;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "pedido")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class PedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private boolean pago;
+    private Integer idUser;
 
-    @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "id_status")
+    private Integer idStatus;
+
+
+    @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
     private Set<ItemPedidoEntity> itens;
+
+    @Column
+    public BigDecimal valorTotalPedido;
+
+    @Column
+    public BigDecimal valorPagoPedido;
+
+    public PedidoEntity(Integer idUser, StatusPedidoEnum statusPedido, List<ItemPedidoDTO> itemPedidoListDTO){
+        this.idUser = idUser;
+        this.idStatus = statusPedido.getIdStatus();
+
+        if(itemPedidoListDTO != null && !itemPedidoListDTO.isEmpty()) {
+            if(itens == null)
+                itens = new HashSet<>();
+
+            itemPedidoListDTO.forEach(i -> {
+                    ItemPedidoEntity itemPedidoE = new ItemPedidoEntity();
+                    itemPedidoE.setProdutoEntity(new ProdutoEntity(i.idProduto()));
+                    itemPedidoE.setQtd(itemPedidoE.getQtd());
+                    itemPedidoE.setPedidoEntity(this);
+                    itens.add(itemPedidoE);
+                }
+            );
+
+        }
+
+
+    }
+
+    public PedidoEntity(StatusPedidoEnum statusPedido, Long id){
+        this.idStatus = statusPedido.getIdStatus();
+        this.id = id;
+    }
+
+
 }
 

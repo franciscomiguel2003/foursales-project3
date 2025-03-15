@@ -1,10 +1,13 @@
 package br.com.foursales.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "item_pedido")
@@ -18,12 +21,16 @@ public class ItemPedidoEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "ID_PEDIDO")
+    @JsonBackReference
     private PedidoEntity pedidoEntity;
 
     @ManyToOne
-    @JoinColumn(name = "produto_id")
+    @JoinColumn(name = "ID_PRODUTO")
     private ProdutoEntity produtoEntity;
 
-    private int quantidade;
+    @Column
+    private BigDecimal valorPagoItem;
+
+    private int qtd;
 }

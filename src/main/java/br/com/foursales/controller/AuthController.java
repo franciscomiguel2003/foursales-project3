@@ -1,12 +1,11 @@
 package br.com.foursales.controller;
 
-import br.com.foursales.DTO.LoginResponseDTO;
-import br.com.foursales.DTO.UserDTO;
+import br.com.foursales.dto.LoginResponseDTO;
+import br.com.foursales.dto.UserCreateDTO;
+import br.com.foursales.dto.UserDTO;
 import br.com.foursales.autentication.services.JwtUtil;
-import br.com.foursales.model.ProdutoEntity;
-import br.com.foursales.model.Role;
+import br.com.foursales.dto.Role;
 import br.com.foursales.model.UserEntity;
-import br.com.foursales.services.ProdutoService;
 import br.com.foursales.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 @RestController
 @RequestMapping("auth")
@@ -44,7 +40,8 @@ class AuthController {
     }
 
     @PostMapping("/register")
-    public UserEntity register(@RequestParam String username, @RequestParam String password, @RequestParam Role role) {
-        return userService.saveUser(username, password, role);
+    public UserEntity register(@RequestBody @Valid UserCreateDTO userDTO) {
+        UserEntity user = new UserEntity(null, userDTO.username(), userDTO.password(), Role.valueOf(userDTO.role()));
+        return userService.saveUser(user);
     }
 }

@@ -1,5 +1,6 @@
 package br.com.foursales.model;
 
+import br.com.foursales.dto.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

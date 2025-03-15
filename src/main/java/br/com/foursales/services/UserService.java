@@ -1,7 +1,6 @@
 package br.com.foursales.services;
 
 import br.com.foursales.dao.UserDAO;
-import br.com.foursales.model.Role;
 import br.com.foursales.model.UserEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -30,8 +29,9 @@ public class UserService implements UserDetailsService {
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
     }
 
-    public UserEntity saveUser(String username, String password, Role role) {
-        UserEntity user = new UserEntity(null, username, passwordEncoder.encode(password), role);
+    public UserEntity saveUser(UserEntity user) {
+        //Encripta a senha
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userDAO.save(user);
     }
 }

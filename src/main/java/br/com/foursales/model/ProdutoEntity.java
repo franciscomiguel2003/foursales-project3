@@ -2,7 +2,6 @@ package br.com.foursales.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,16 +11,26 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProdutoEntity {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String nome;
     private String categoria;
     private Double preco;
-    private Integer estoque;
+    @Column(name="qtd_estoque")
+    private Integer qtdEstoque;
 
+    public ProdutoEntity(Integer id){
+        this.id = id;
+    }
+    public ProdutoEntity(Integer id, String nome, String categoria, Double preco, Integer qtdEstoque) {
+        this.id = id;
+        this.nome = nome;
+        this.categoria = categoria;
+        this.preco = preco;
+        this.qtdEstoque = qtdEstoque;
+    }
 }

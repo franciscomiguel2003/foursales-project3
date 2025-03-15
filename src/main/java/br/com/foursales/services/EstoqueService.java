@@ -26,7 +26,7 @@ public class EstoqueService {
         List<ItemPedidoEntity> itens = itemPedidoDao.findByPedidoEntityId(pedidoId);
         for (ItemPedidoEntity item : itens) {
             ProdutoEntity produtoEntity = item.getProdutoEntity();
-            produtoEntity.setEstoque(produtoEntity.getEstoque() - item.getQuantidade());
+            produtoEntity.setQtdEstoque(produtoEntity.getQtdEstoque() - item.getQtd());
             produtoDAO.save(produtoEntity);
         }
     }

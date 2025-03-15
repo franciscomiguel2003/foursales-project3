@@ -1,4 +1,4 @@
-package br.com.foursales.model;
+package br.com.foursales.dto;
 
 public enum Role {
     ADMIN("ADMIN"), USER("USER");

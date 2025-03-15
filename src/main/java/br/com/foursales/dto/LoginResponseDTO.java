@@ -1,4 +1,4 @@
-package br.com.foursales.DTO;
+package br.com.foursales.dto;
 
 public record LoginResponseDTO(String token) {
 }

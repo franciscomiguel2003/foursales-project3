@@ -22,4 +22,18 @@ public class ProdutoService {
         return produtoEntities;
     }
 
+    public ProdutoEntity criarProduto(ProdutoEntity produto){
+        return  produtoDAO.save(produto);
+    }
+
+    public ProdutoEntity atualizaProduto(ProdutoEntity produto){
+        return  produtoDAO.save(produto);
+    }
+    public void excluiProduto(Integer id) throws Exception {
+        if(produtoDAO.existsById(id.longValue()))
+             produtoDAO.deleteById(id.longValue());
+        else
+            throw new Exception("Produto não existe");
+    }
+
 }
