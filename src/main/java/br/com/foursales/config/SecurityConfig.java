@@ -2,6 +2,7 @@ package br.com.foursales.config;
 
 import br.com.foursales.autentication.services.JwtFilter;
 import br.com.foursales.dto.Role;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,21 +35,26 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/produto/**").hasRole(Role.ADMIN.getRole())
                         .requestMatchers(HttpMethod.PUT, "/produto/**").hasRole(Role.ADMIN.getRole())
                         .requestMatchers(HttpMethod.DELETE, "/produto/**").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.POST, "/pedido/pagar").hasRole(Role.ADMIN.getRole())
                         .requestMatchers(HttpMethod.GET, "/produto/listarProdutos").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
                         .requestMatchers(HttpMethod.PUT, "/pedido/criarPedido").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
-
-
-
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Resposta JSON para falha de autenticação (401)
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Autenticação necessária\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("{\"error\": \"Forbidden\", \"message\": \"Perfil não Autorizado\"}");
+                        })
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-
-//                .exceptionHandling(exception -> exception
-//                        .authenticationEntryPoint((req, resp, e) -> {
-//                            System.out.println("Acesso negado: " + req.getRequestURI() + " - " + e.getMessage());
-//                            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-//                        })
-//                )
                 .build();
+
     }
 
     @Bean

@@ -1,17 +1,16 @@
 package br.com.foursales.services;
 
-import br.com.foursales.autentication.services.exceptions.FoursalesBusinessException;
+import br.com.foursales.autentication.services.exceptions.FourSalesBusinessException;
 import br.com.foursales.dao.PedidoDAO;
 import br.com.foursales.dao.ProdutoDAO;
-import br.com.foursales.dto.ItemPedidoDTO;
-import br.com.foursales.dto.ItemPedidoResponseDTO;
-import br.com.foursales.dto.PedidoResponseDTO;
-import br.com.foursales.dto.StatusPedidoEnum;
+import br.com.foursales.dto.*;
+import br.com.foursales.email.services.GmailService;
 import br.com.foursales.model.ItemPedidoEntity;
 import br.com.foursales.model.PedidoEntity;
 import br.com.foursales.model.ProdutoEntity;
-import org.hibernate.Hibernate;
-import org.springframework.http.ResponseEntity;
+import br.com.foursales.model.UserEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,98 +18,181 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class PedidoService {
+    private Logger logger = LogManager.getLogger(Thread.currentThread().getClass().getName());
     private final PedidoDAO pedidoDAO;
     private final ProdutoDAO produtoDAO;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Long> kafkaTemplate;
 
-    public PedidoService(PedidoDAO pedidoDAO, ProdutoDAO produtoDAO, KafkaTemplate<String, String> kafkaTemplate) {
+    private final GmailService gmailService;
+
+    public PedidoService(PedidoDAO pedidoDAO, ProdutoDAO produtoDAO, KafkaTemplate<String, Long> kafkaTemplate, GmailService gmailService) {
         this.pedidoDAO = pedidoDAO;
         this.produtoDAO = produtoDAO;
         this.kafkaTemplate = kafkaTemplate;
+        this.gmailService = gmailService;
     }
 
 
 
     @Transactional
-    public PedidoResponseDTO criarPedido(Integer idUser, StatusPedidoEnum statusPedido, List<ItemPedidoDTO> itemPedidoListDTO) {
+    public PedidoResponseDTO criarPedido(UserEntity user, List<ItemPedidoDTO> itemPedidoListDTO) {
 
+        PedidoResponseDTO pedidoResponseDTO = null;
         PedidoEntity pedido = new PedidoEntity();
-        pedido.setIdUser(idUser);
-        pedido.setIdStatus(statusPedido.getIdStatus());
+        pedido.setUser(user);
+        pedido.setIdStatus(StatusPedidoEnum.PENDENTE.getIdStatus());
 
         List<ItemPedidoResponseDTO> listItemPedidoResponseDTO = new ArrayList<>();
         BigDecimal valorTotalPedido = BigDecimal.ZERO;
 
+        HashMap<Integer, Integer> produtosHash = new HashMap<Integer, Integer>();
+
         if (itemPedidoListDTO != null && !itemPedidoListDTO.isEmpty()) {
+
+            //Juntando Produtos adicionados mais de 1x na lista
             for (ItemPedidoDTO dto : itemPedidoListDTO) {
-                ProdutoEntity produto = produtoDAO.findById(dto.idProduto())
-                        .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + dto.idProduto()));
-                ItemPedidoEntity item = new ItemPedidoEntity();
-                item.setProdutoEntity(produto);
-                item.setQtd(dto.qtd());
-                item.setPedidoEntity(pedido);
-                pedido.getItens().add(item);
+                if(!produtosHash.containsKey(dto.idProduto()))
+                    produtosHash.put(dto.idProduto(),dto.qtd());
+                else
+                    produtosHash.put(dto.idProduto(),produtosHash.get(dto.idProduto())+dto.qtd());
+
+            }
+
+            for (Integer idProduto : produtosHash.keySet()) {
+                int qtdProduto =produtosHash.get(idProduto);
+
+                ProdutoEntity produto = produtoDAO.findById(idProduto)
+                        .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + idProduto));
+
+                if(produto.getQtdEstoque()<qtdProduto)
+                    throw new FourSalesBusinessException("Não foi possível criar o pedido pois a quantidade de "
+                            + produto.getNome() + " no estoque é: " + produto.getQtdEstoque());
 
                 BigDecimal valorTotalItem = produto.getPreco();
-                valorTotalItem = valorTotalItem.multiply(new BigDecimal(dto.qtd()));
+
+                ItemPedidoEntity item = new ItemPedidoEntity();
+                item.setProdutoEntity(produto);
+                item.setQtd(qtdProduto);
+                item.setPedidoEntity(pedido);
+                pedido.getItens().add(item);
+                item.setValorTotalItem(valorTotalItem);
+
+                valorTotalItem = valorTotalItem.multiply(new BigDecimal(produtosHash.get(idProduto)));
 
                 valorTotalPedido = valorTotalPedido.add(valorTotalItem);
+                pedido.setValorTotal(valorTotalPedido);
 
-                ItemPedidoResponseDTO itemDTO = new ItemPedidoResponseDTO(produto.getNome(), produto.getPreco(), valorTotalItem,  dto.qtd());
+                ItemPedidoResponseDTO itemDTO = new ItemPedidoResponseDTO(produto.getNome(), produto.getPreco(), valorTotalItem,  qtdProduto);
                 listItemPedidoResponseDTO.add(itemDTO);
             }
+
+            pedido = pedidoDAO.save(pedido);
+            kafkaTemplate.send("order.created", pedido.getId());
+            pedidoResponseDTO = new PedidoResponseDTO(pedido.getId(), valorTotalPedido, StatusPedidoEnum.PENDENTE.name(),listItemPedidoResponseDTO);
+
+        } else {
+            throw new FourSalesBusinessException("Não existem itens no seu pedido");
         }
-
-        pedido = pedidoDAO.save(pedido);
-
-        PedidoResponseDTO pedidoResponseDTO = new PedidoResponseDTO(pedido.getId(), valorTotalPedido, statusPedido.name(),listItemPedidoResponseDTO);
-
-        kafkaTemplate.send("order.created", "Pedido criado: " + pedido.getId());
 
 
         return pedidoResponseDTO;
     }
 
-    @Transactional
+    @Transactional(noRollbackForClassName = "FourSalesWarningException.class")
     public PedidoEntity buscarPedidosPorId(Long idPedido){
 
         PedidoEntity pedido = pedidoDAO.findById(idPedido).orElse(null);
         return pedido;
 
     }
-    public PedidoEntity pagarPedido(Long pedidoId, BigDecimal valorTotalPago) {
+    @Transactional
+    public PagamentoPedidoResponseDTO pagarPedido(Long pedidoId, BigDecimal valorTotalPago) {
+
+        String msgRetorno="";
+        PedidoResponseDTO pedidoResponseDTO;
 
         PedidoEntity pedidoEntity = pedidoDAO.findById(pedidoId).orElseThrow();
-        List<ItemPedidoEntity> itensPedido = pedidoEntity.getItens().stream().toList();
+        List<ItemPedidoEntity> itensPedido = pedidoEntity.getItens();
+        List<ItemPedidoResponseDTO> listItemPedidoResponseDTO = new ArrayList<>();
 
-        if(pedidoEntity.getIdStatus().equals(StatusPedidoEnum.PENDENTE)){
+        if(pedidoEntity.getIdStatus().equals(StatusPedidoEnum.PENDENTE.getIdStatus())){
 
-            BigDecimal valorTotalPedido = new BigDecimal(0);
-            itensPedido.forEach(i->{
-                valorTotalPedido.add(i.getProdutoEntity().getPreco());
-            });
+            BigDecimal valorTotalPedido = BigDecimal.ZERO;
 
-            if(valorTotalPago.compareTo(valorTotalPedido) >= 0 ){
-                pedidoEntity.setValorPagoPedido(valorTotalPago);
-                pedidoEntity.setValorTotalPedido(valorTotalPedido);
-                itensPedido.forEach(i->{
-                    i.setValorPago(i.getProdutoEntity().getPreco());
-                });
-                pedidoEntity.setIdStatus(StatusPedidoEnum.PAGO.getIdStatus());
-            }  else {
-                pedidoEntity.setIdStatus(StatusPedidoEnum.CANDELADO.getIdStatus());
-                throw new FoursalesBusinessException("Seu pedido será cancelado pois o pagamento efetuado" +
-                        " é menor que o valor do pedido");
+            for (ItemPedidoEntity i: itensPedido) {
+                BigDecimal valorItem = i.getProdutoEntity().getPreco().multiply(new BigDecimal(i.getQtd()));
+                valorTotalPedido = valorTotalPedido.add(valorItem);
+                i.setValorTotalItem(valorItem);
+
+                ProdutoEntity prod = i.getProdutoEntity();
+
+                ItemPedidoResponseDTO itemDTO = new ItemPedidoResponseDTO(prod.getNome(),
+                        prod.getPreco(), valorItem,  i.getQtd());
+
+                listItemPedidoResponseDTO.add(itemDTO);
             }
 
+            if(valorTotalPago.compareTo(valorTotalPedido) >= 0 ){
+                pedidoEntity.setValorTotal(valorTotalPedido);
+                pedidoEntity.setValorTotalPago(valorTotalPago);
+                pedidoEntity.setIdStatus(StatusPedidoEnum.PAGO.getIdStatus());
+
+                if(valorTotalPago.compareTo(valorTotalPedido) > 0)
+                    msgRetorno = "O valor pago é mais alto que o valor do pedido!";
+
+
+                pedidoDAO.save(pedidoEntity);
+
+                kafkaTemplate.send("order.paid", pedidoEntity.getId());
+
+            }  else {
+                pedidoEntity.setIdStatus(StatusPedidoEnum.CANDELADO.getIdStatus());
+                pedidoDAO.save(pedidoEntity);
+                msgRetorno = "Seu pedido foi cancelado pois o valor do pagamento" +
+                        " é menor que o valor do pedido";
+
+            }
+
+        } else {
+            throw new FourSalesBusinessException("O status atual não permite alteração");
         }
 
-        pedidoDAO.save(pedidoEntity);
-        kafkaTemplate.send("order.paid", "Pedido pago: " + pedidoEntity.getId());
-        return pedidoEntity;
+        pedidoResponseDTO = new PedidoResponseDTO(pedidoEntity.getId(),pedidoEntity.getValorTotal(),StatusPedidoEnum.PAGO.name(),listItemPedidoResponseDTO);
+
+        return new PagamentoPedidoResponseDTO(pedidoResponseDTO,msgRetorno);
     }
+
+    //Atualiza estoque garantindo a quantidade inclusive com transações simultâneas
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void atualizaEstoqueProduto(ItemPedidoEntity itemPedido, PedidoEntity pedido){
+            //Verifica produtos no estoque para no caso de transações simultaneas
+            ProdutoEntity produto = produtoDAO.findByIdWithLock(itemPedido.getProdutoEntity().getId());
+            UserEntity user = pedido.getUser();
+
+            if(produto.getQtdEstoque().intValue()>=itemPedido.getQtd()) {
+                produto.setQtdEstoque(produto.getQtdEstoque().intValue() - itemPedido.getQtd());
+                produtoDAO.save(produto);
+            } else {
+                cancelaPedido(pedido);
+                gmailService.enviarEmail(user.getEmail(), "O pedido de número: " +pedido.getId() +
+                                " foi CANCELADO",
+                        "Seu pedido foi cancelado por falta do produto em estoque");
+
+            }
+
+        logger.info("Estoque do produto atualizado: idProduto{}", produto.getId());
+    }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void cancelaPedido(PedidoEntity pedido){
+
+        pedido.setIdStatus(StatusPedidoEnum.CANDELADO.getIdStatus());
+        pedidoDAO.save(pedido);
+
+    }
+
 }

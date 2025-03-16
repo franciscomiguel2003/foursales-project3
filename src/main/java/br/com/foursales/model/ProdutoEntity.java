@@ -30,8 +30,6 @@ public class ProdutoEntity {
     @Column(name="qtd_estoque")
     private Integer qtdEstoque;
 
-    @OneToMany(mappedBy = "produtoEntity")
-    private List<ItemPedidoEntity> itemPedidoEntities;
 
     public ProdutoEntity(Integer id){
         this.id = id;

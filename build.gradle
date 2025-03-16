@@ -22,6 +22,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
+    // Spring Boot Starter Mail (inclui JavaMail)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     // Banco de Dados MySQL
     implementation 'com.mysql:mysql-connector-j:8.0.33'
 

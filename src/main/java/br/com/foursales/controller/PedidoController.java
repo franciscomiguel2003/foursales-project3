@@ -1,22 +1,15 @@
 package br.com.foursales.controller;
 
+import br.com.foursales.autentication.services.exceptions.FourSalesBusinessException;
 import br.com.foursales.dto.*;
-import br.com.foursales.model.ItemPedidoEntity;
-import br.com.foursales.model.PedidoEntity;
 import br.com.foursales.model.UserEntity;
 import br.com.foursales.services.PedidoService;
-import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("pedido")
@@ -34,11 +27,13 @@ class PedidoController {
 
         try {
 
-            PedidoResponseDTO pedido = pedidoService.criarPedido(user.getId().intValue(), StatusPedidoEnum.PENDENTE, pedidoDTO.itemPedidoListDTO());
+            PedidoResponseDTO pedido = pedidoService.criarPedido(user, pedidoDTO.itemPedidoListDTO());
 
             return ResponseFourSales.getResponse(pedido,"Cadastro efetuado com sucesso", HttpStatus.OK);
         } catch (Exception e ){
             String error = "ERRO CRIAR PEDIDO";
+            if(e instanceof FourSalesBusinessException)
+                error=e.getMessage();
             logger.error(error, e);
             return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -46,14 +41,17 @@ class PedidoController {
 
     }
 
-    @PostMapping("/pagar/{id}")
+    @PostMapping("/pagar")
     public ResponseEntity pagarPedido(@RequestBody PagamentoPedidoRequestDTO pedidoRequestDTO) {
 
         try {
-            PedidoEntity pedidoResponde  = pedidoService.pagarPedido(pedidoRequestDTO.idPedido(), pedidoRequestDTO.valorPago());
-            return ResponseFourSales.getResponse(pedidoResponde, null, HttpStatus.OK);
-        } catch (Exception e ){
+            PagamentoPedidoResponseDTO pedidoResponde  = pedidoService.pagarPedido(pedidoRequestDTO.idPedido(), pedidoRequestDTO.valorPago());
+            return ResponseFourSales.getResponse(pedidoResponde, "Pedido cadastrado com sucesso", HttpStatus.OK);
+
+        } catch (Exception e){
             String error = "ERRO AO EFETUAR PAGAMENTO";
+            if(e instanceof FourSalesBusinessException)
+                error=e.getMessage();
             logger.error(error, e);
             return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
 

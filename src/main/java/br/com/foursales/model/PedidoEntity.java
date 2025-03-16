@@ -1,20 +1,15 @@
 package br.com.foursales.model;
 
-import br.com.foursales.dto.ItemPedidoDTO;
-import br.com.foursales.dto.StatusPedidoEnum;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.repository.cdi.Eager;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "pedido")
@@ -26,19 +21,23 @@ public class PedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer idUser;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_USER")
+    private UserEntity user;
 
     @Column(name = "id_status")
     private Integer idStatus;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "pedidoEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ItemPedidoEntity>  itens = new ArrayList<>();
 
     @Column
-    public BigDecimal valorTotalPedido;
+    public BigDecimal valorTotalPago;
 
     @Column
-    public BigDecimal valorPagoPedido;
+    public BigDecimal valorTotal;
 
 
 }

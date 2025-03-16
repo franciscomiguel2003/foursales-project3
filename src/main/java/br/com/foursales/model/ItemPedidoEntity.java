@@ -1,5 +1,6 @@
 package br.com.foursales.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,16 +20,18 @@ public class ItemPedidoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_PRODUTO")
     private ProdutoEntity produtoEntity;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_PEDIDO")
     private PedidoEntity pedidoEntity;
 
     @Column
-    private BigDecimal valorPago;
+    private BigDecimal valorTotalItem;
 
     private int qtd;
 }
