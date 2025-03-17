@@ -23,6 +23,7 @@ public class UserEntity implements UserDetails {
     private Long id;
     private String username;
     private String password;
+    private String nome;
     private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -30,8 +31,7 @@ public class UserEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(this.role == Role.ADMIN)
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_USER"));
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         else
             return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 @Document(indexName = "produtos")
@@ -12,9 +13,10 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProdutoDocument {
-    @org.springframework.data.annotation.Id
-    private Long id;
+    @Id
+    private Integer id;
     private String nome;
     private String categoria;
     private double preco;
+    private int qtdEstoque;
 }

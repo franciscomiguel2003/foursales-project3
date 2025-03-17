@@ -1,5 +1,6 @@
 package br.com.foursales.controller;
 
+import br.com.foursales.autentication.services.exceptions.FourSalesBusinessException;
 import br.com.foursales.dto.*;
 import br.com.foursales.autentication.services.JwtUtil;
 import br.com.foursales.model.UserEntity;
@@ -43,20 +44,23 @@ class AuthController {
 
     }
 
-    @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid UserCreateDTO userDTO) {
+    @PostMapping("/criarUsuario")
+    public ResponseEntity criarUsuario(@RequestBody @Valid UserCreateDTO userDTO) {
 
         try {
 
-            UserEntity user = new UserEntity(null, userDTO.username(), userDTO.password().toUpperCase(),
-                    userDTO.email(),  Role.valueOf(userDTO.role()));
+            UserEntity user = new UserEntity(null, userDTO.username().toUpperCase(), userDTO.password(),
+                    userDTO.nome(), userDTO.email(),  Role.valueOf(userDTO.role()));
 
             userService.saveUser(user);
-
-            return ResponseFourSales.getResponse(null, "Usuário cadastrado com sucesso!",
+            return ResponseFourSales.getResponse(new UserResponseDTO(user.getUsername(),user.getRole().name()), "Usuário cadastrado com sucesso!",
                     HttpStatus.OK);
         }catch (Exception e ){
-            ErrorResponseDTO error = new ErrorResponseDTO("Erro ao cadastrar o usuário", HttpStatus.NOT_FOUND.name());
+            String msgError = "Erro ao cadastrar o usuário";
+            if(e instanceof FourSalesBusinessException)
+                msgError=e.getMessage();
+
+            ErrorResponseDTO error = new ErrorResponseDTO(msgError, HttpStatus.NOT_FOUND.name());
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 

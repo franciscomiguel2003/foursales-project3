@@ -8,6 +8,10 @@ public record UserCreateDTO(
         String username,
         @NotNull
         String password,
+
+        @NotNull
+        String nome,
+
         @NotNull
         String role,
 

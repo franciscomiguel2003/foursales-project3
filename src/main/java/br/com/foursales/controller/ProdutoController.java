@@ -32,7 +32,7 @@ public class ProdutoController {
         return produtoService.listarProdutos();
     }
 
-    @PutMapping("/criarProduto")
+    @PostMapping("/criarProduto")
     public ResponseEntity criarProduto(@RequestBody @Valid ProdutoRequestDTO prodDTO) {
 
 
@@ -50,7 +50,7 @@ public class ProdutoController {
 
     }
 
-    @PostMapping("/editaProduto")
+    @PutMapping("/editaProduto")
     public ResponseEntity editaProduto(@RequestBody @Valid ProdutoEditRequestDTO prodDTO) {
 
         try {
@@ -74,10 +74,11 @@ public class ProdutoController {
 
         try {
             produtoService.excluiProduto(id);
-            return ResponseFourSales.getResponse(null, "Produto atualizado com sucesso!",HttpStatus.OK);
+            return ResponseFourSales.getResponse(null, "Produto excluído com sucesso!",HttpStatus.OK);
         }catch (Exception e ){
-            ErrorResponseDTO error = new ErrorResponseDTO("Produto não encontrado", HttpStatus.NOT_FOUND.name());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+            ErrorResponseDTO error = new ErrorResponseDTO("Erro ao excluír produto", HttpStatus.NOT_FOUND.name());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

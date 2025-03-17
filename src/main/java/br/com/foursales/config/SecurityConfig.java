@@ -32,20 +32,24 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Liberar tudo em /auth
+                        .requestMatchers("/pedido/buscarTotalFaturadoMes").permitAll()
+                        .requestMatchers("/pedido/buscarTicketMedioUsuario").permitAll()
+                        .requestMatchers("/pedido/buscarTop5UsuariosCompras").permitAll()
                         .requestMatchers(HttpMethod.POST, "/produto/**").hasRole(Role.ADMIN.getRole())
                         .requestMatchers(HttpMethod.PUT, "/produto/**").hasRole(Role.ADMIN.getRole())
                         .requestMatchers(HttpMethod.DELETE, "/produto/**").hasRole(Role.ADMIN.getRole())
-                        .requestMatchers(HttpMethod.POST, "/pedido/pagar").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.POST, "/pedido/criarPedido").hasRole(Role.USER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/pedido/pagar").hasRole(Role.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.GET, "/produto/elastic/buscarProdutosElasticSearch/**").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
+                        .requestMatchers(HttpMethod.GET, "/produto/elastic/findAll/**").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
                         .requestMatchers(HttpMethod.GET, "/produto/listarProdutos").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
-                        .requestMatchers(HttpMethod.PUT, "/pedido/criarPedido").hasAnyRole(Role.ADMIN.getRole(), Role.USER.getRole())
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            // Resposta JSON para falha de autenticação (401)
                             response.setContentType("application/json");
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Autenticação necessária\"}");
+                            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Não Autorizado\"}");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setContentType("application/json");

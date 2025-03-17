@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("pedido")
 class PedidoController {
@@ -22,7 +25,7 @@ class PedidoController {
     }
 
 
-    @PutMapping("/criarPedido")
+    @PostMapping("/criarPedido")
     public ResponseEntity criarPedido(@RequestBody PedidoRequestDTO pedidoDTO, @AuthenticationPrincipal UserEntity user) {
 
         try {
@@ -41,12 +44,12 @@ class PedidoController {
 
     }
 
-    @PostMapping("/pagar")
+    @PutMapping("/pagar")
     public ResponseEntity pagarPedido(@RequestBody PagamentoPedidoRequestDTO pedidoRequestDTO) {
 
         try {
             PagamentoPedidoResponseDTO pedidoResponde  = pedidoService.pagarPedido(pedidoRequestDTO.idPedido(), pedidoRequestDTO.valorPago());
-            return ResponseFourSales.getResponse(pedidoResponde, "Pedido cadastrado com sucesso", HttpStatus.OK);
+            return ResponseFourSales.getResponse(pedidoResponde, pedidoResponde.message(), HttpStatus.OK);
 
         } catch (Exception e){
             String error = "ERRO AO EFETUAR PAGAMENTO";
@@ -55,6 +58,50 @@ class PedidoController {
             logger.error(error, e);
             return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
 
+        }
+    }
+    @GetMapping("/buscarTotalFaturadoMes")
+    public ResponseEntity buscarTotalFaturadoMes(String mesAnoReferencia){
+
+         try {
+            List<TotalFaturadoMesResponseDTO> listTotalFaturado = pedidoService.buscarTotalFaturadoMes(mesAnoReferencia);
+            return ResponseFourSales.getResponse(listTotalFaturado, "Dado retornado com sucesso", HttpStatus.OK);
+
+        } catch (Exception e){
+             String error = "Erro ao buscar buscarTotalFaturadoMes";
+             logger.error(error, e);
+             return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/buscarTicketMedioUsuario")
+    public ResponseEntity buscarTicketMedioUsuario(){
+
+
+        try {
+            List<TicketMedioUsuarioResponseDTO> ListTicketMedio = pedidoService.buscarTicketMedioUsuario();
+             return ResponseFourSales.getResponse(ListTicketMedio, "Dado retornado com sucesso", HttpStatus.OK);
+
+        } catch (Exception e){
+            String error = "Erro ao buscar buscarTicketMedioUsuario";
+            logger.error(error, e);
+            return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @GetMapping("/buscarTop5UsuariosCompras")
+    public ResponseEntity buscarTop5UsuariosCompras(){
+
+
+        try {
+            List<Top5UsuariosComprasResponseDTO> listTop5Usuarios = pedidoService.buscarTop5UsuariosCompras();
+            return ResponseFourSales.getResponse(listTop5Usuarios, "Dado retornado com sucesso", HttpStatus.OK);
+
+        } catch (Exception e){
+            String error = "buscarTop5UsuariosCompras";
+            logger.error(error, e);
+            return ResponseFourSales.getResponse(null, error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

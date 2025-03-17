@@ -2,7 +2,6 @@ package br.com.foursales.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.math.BigDecimal;
 
@@ -18,4 +17,7 @@ public record ProdutoRequestDTO(
 
         int qtdEstoque
 
-) {}
+) {
+        public static class MelhoresClientesDTO {
+        }
+}

@@ -4,11 +4,9 @@ import br.com.foursales.autentication.services.exceptions.FourSalesBusinessExcep
 import br.com.foursales.dao.PedidoDAO;
 import br.com.foursales.dao.ProdutoDAO;
 import br.com.foursales.dto.*;
+import br.com.foursales.elasticsearch.dao.ProdutoElasticsearchDAO;
 import br.com.foursales.email.services.GmailService;
-import br.com.foursales.model.ItemPedidoEntity;
-import br.com.foursales.model.PedidoEntity;
-import br.com.foursales.model.ProdutoEntity;
-import br.com.foursales.model.UserEntity;
+import br.com.foursales.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -17,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +25,16 @@ public class PedidoService {
     private Logger logger = LogManager.getLogger(Thread.currentThread().getClass().getName());
     private final PedidoDAO pedidoDAO;
     private final ProdutoDAO produtoDAO;
+
+    private final ProdutoElasticsearchDAO produtoElasticsearchDAO;
     private final KafkaTemplate<String, Long> kafkaTemplate;
 
     private final GmailService gmailService;
 
-    public PedidoService(PedidoDAO pedidoDAO, ProdutoDAO produtoDAO, KafkaTemplate<String, Long> kafkaTemplate, GmailService gmailService) {
+    public PedidoService(PedidoDAO pedidoDAO, ProdutoDAO produtoDAO, ProdutoElasticsearchDAO produtoElasticsearchDAO, KafkaTemplate<String, Long> kafkaTemplate, GmailService gmailService) {
         this.pedidoDAO = pedidoDAO;
         this.produtoDAO = produtoDAO;
+        this.produtoElasticsearchDAO = produtoElasticsearchDAO;
         this.kafkaTemplate = kafkaTemplate;
         this.gmailService = gmailService;
     }
@@ -142,8 +144,10 @@ public class PedidoService {
                 pedidoEntity.setValorTotalPago(valorTotalPago);
                 pedidoEntity.setIdStatus(StatusPedidoEnum.PAGO.getIdStatus());
 
+                msgRetorno = "Pedido pago com sucesso! ";
+
                 if(valorTotalPago.compareTo(valorTotalPedido) > 0)
-                    msgRetorno = "O valor pago é mais alto que o valor do pedido!";
+                    msgRetorno = msgRetorno + "O valor pago é mais alto que o valor do pedido!";
 
 
                 pedidoDAO.save(pedidoEntity);
@@ -172,11 +176,17 @@ public class PedidoService {
     public void atualizaEstoqueProduto(ItemPedidoEntity itemPedido, PedidoEntity pedido){
             //Verifica produtos no estoque para no caso de transações simultaneas
             ProdutoEntity produto = produtoDAO.findByIdWithLock(itemPedido.getProdutoEntity().getId());
+            ProdutoDocument produtoElasticsearch = produtoElasticsearchDAO.findById(itemPedido.getProdutoEntity().getId()).orElse(
+                    new ProdutoDocument(produto.getId(),produto.getNome(),produto.getCategoria(),produto.getPreco().doubleValue(),produto.getQtdEstoque())
+            );
+
             UserEntity user = pedido.getUser();
 
             if(produto.getQtdEstoque().intValue()>=itemPedido.getQtd()) {
                 produto.setQtdEstoque(produto.getQtdEstoque().intValue() - itemPedido.getQtd());
+                produtoElasticsearch.setQtdEstoque(produto.getQtdEstoque());
                 produtoDAO.save(produto);
+                produtoElasticsearchDAO.save(produtoElasticsearch);
             } else {
                 cancelaPedido(pedido);
                 gmailService.enviarEmail(user.getEmail(), "O pedido de número: " +pedido.getId() +
@@ -193,6 +203,31 @@ public class PedidoService {
         pedido.setIdStatus(StatusPedidoEnum.CANDELADO.getIdStatus());
         pedidoDAO.save(pedido);
 
+    }
+
+    public List<TotalFaturadoMesResponseDTO> buscarTotalFaturadoMes(String mesAnoReferencia){
+
+        //Ajusta data se necessario
+        String mesAno = mesAnoReferencia.length() <6?"0"+mesAnoReferencia:mesAnoReferencia;
+        int mes = Integer.parseInt(mesAno.substring(0,2));
+        int ano = Integer.parseInt(mesAno.substring(2,6));
+
+        LocalDate dataRef = LocalDate.now();
+        dataRef = dataRef.withDayOfMonth(1);
+        dataRef = dataRef.withMonth(mes);
+        dataRef = dataRef.withYear(ano);
+
+        LocalDate dataInicio = dataRef.withDayOfMonth(1);
+        LocalDate dataFim = dataInicio.plusMonths(1);
+        return pedidoDAO.buscarTotalFaturadoMes(dataInicio, dataFim);
+    }
+    public List<TicketMedioUsuarioResponseDTO> buscarTicketMedioUsuario(){
+        return pedidoDAO.buscarTicketMedioUsuario();
+
+    }
+
+    public List<Top5UsuariosComprasResponseDTO> buscarTop5UsuariosCompras(){
+        return pedidoDAO.buscaTop5MelhoresUsuarios();
     }
 
 }

@@ -1,7 +1,12 @@
 package br.com.foursales.services;
 
+import br.com.foursales.autentication.services.exceptions.FourSalesBusinessException;
 import br.com.foursales.dao.UserDAO;
 import br.com.foursales.model.UserEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 @Service
 public class UserService implements UserDetailsService {
+
+    private Logger logger = LogManager.getLogger(Thread.currentThread().getClass().getName());
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
 
@@ -31,7 +38,16 @@ public class UserService implements UserDetailsService {
 
     public UserEntity saveUser(UserEntity user) {
         //Encripta a senha
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userDAO.save(user);
+
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            return userDAO.save(user);
+        } catch (DataIntegrityViolationException er){
+            throw new FourSalesBusinessException("Username já existente, tente outro!");
+        } catch (Exception e){
+            logger.error("Erro inesperado ao criar usuário: {}", e.getMessage());
+            throw new RuntimeException("Erro inesperado ao criar usuário: ", e);
+        }
+
     }
 }

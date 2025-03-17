@@ -1,0 +1,589 @@
+{
+	"info": {
+		"_postman_id": "ec3d0106-74a7-4830-a588-444a029168f3",
+		"name": "FourSales",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2815388"
+	},
+	"item": [
+		{
+			"name": "TESTE Elastic",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9200/_cluster/health?pretty",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"_cluster",
+						"health"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": ""
+						}
+					]
+				},
+				"description": "Generated from cURL: curl -X GET \"http://localhost:9200/_cluster/health?pretty\"\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar usuário",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Ximbinha\",\r\n    \"password\":\"ABC123\",\r\n    \"nome\": \"Joelma Ximbinha\",\r\n    \"role\": \"ADMIN\",\r\n    \"email\": \"franciscomiguel2003@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth/criarUsuario?username=ANDRE&password=ABC123&role=ADMIN",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"criarUsuario"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "ANDRE"
+						},
+						{
+							"key": "password",
+							"value": "ABC123"
+						},
+						{
+							"key": "role",
+							"value": "ADMIN"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CriarProduto",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IlBBVUxBIiwiZXhwIjoxNzQyMjE4Nzg5fQ.2OqaeOmzR9HQuzB2OV90vEoFZ2wCjSS070g83uXMW58",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"PIMENTA DEDO DE MOCA\",\r\n  \"categoria\": \"LEGUME\",\r\n  \"preco\": 17.8,\r\n  \"qtdEstoque\": 30\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/criarProduto",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"criarProduto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CriarPedido",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6Ik1JR1VFTCIsImV4cCI6MTc0MjIxODcyM30.fgNCgIP_Q0kuUiFpL45vD7hym_22f2mAfDops-MJpvo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \r\n  \"itemPedidoListDTO\": [\r\n     {\r\n        \"idProduto\": 3,\r\n        \"qtd\":70\r\n    },\r\n    {\r\n        \"idProduto\": 2,\r\n        \"qtd\":2\r\n    },\r\n        {\r\n        \"idProduto\": 2,\r\n        \"qtd\":1\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/pedido/criarPedido",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pedido",
+						"criarPedido"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PagarPedido",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODU3OH0.arsLQwVQdEcfyLl8V2Vrcl0zNLKTgVqrCGDp4EPUYT8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idPedido\":84,\r\n    \"valorPago\": 1040.90\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/pedido/pagar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pedido",
+						"pagar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Produtos",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODAwMn0.-fYemurp2fQofkT12qXVxBN58RH089kDRDfBnr6_6qQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/listarProdutos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"listarProdutos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutosElasticSearch",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODAwMn0.-fYemurp2fQofkT12qXVxBN58RH089kDRDfBnr6_6qQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "precoMin",
+						"value": "19",
+						"type": "text"
+					},
+					{
+						"key": "precoMax",
+						"value": "10000",
+						"type": "text"
+					},
+					{
+						"key": "categoria",
+						"value": "FRUTA",
+						"type": "text"
+					},
+					{
+						"key": "nome",
+						"value": "MORANGO",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "precoMin",
+							"value": "16",
+							"type": "text"
+						},
+						{
+							"key": "precoMax",
+							"value": "17",
+							"type": "text"
+						},
+						{
+							"key": "categoria",
+							"value": "FRUTA",
+							"type": "text"
+						},
+						{
+							"key": "nome",
+							"value": "UVA",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/elastic/buscaProdutosEmEstoqueElasticSearch",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"elastic",
+						"buscaProdutosEmEstoqueElasticSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutosElasticfindAll",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODAwMn0.-fYemurp2fQofkT12qXVxBN58RH089kDRDfBnr6_6qQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "preco",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/elastic/findAll",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"elastic",
+						"findAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarTotalFaturadoMes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "mesAnoReferencia",
+							"value": "032025\n",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/pedido/buscarTotalFaturadoMes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pedido",
+						"buscarTotalFaturadoMes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarTicketMedioUsuario",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/pedido/buscarTicketMedioUsuario",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pedido",
+						"buscarTicketMedioUsuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarTop5UsuariosCompras",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/pedido/buscarTop5UsuariosCompras",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pedido",
+						"buscarTop5UsuariosCompras"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"XIMBINha\",\r\n  \"password\": \"ABC123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "editaProduto",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODAwMn0.-fYemurp2fQofkT12qXVxBN58RH089kDRDfBnr6_6qQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 20, \r\n  \"nome\":\"ABACAXI\",\r\n  \r\n  \"qtdEstoque\": 1  \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/editaProduto",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"editaProduto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoLWFwaSIsInN1YiI6IkpPRUxNQSIsImV4cCI6MTc0MjIxODAwMn0.-fYemurp2fQofkT12qXVxBN58RH089kDRDfBnr6_6qQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "20",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/produto/excluiProduto",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"produto",
+						"excluiProduto"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
