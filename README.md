@@ -7,7 +7,7 @@ dump-foursalesdb.sql
 FourSales.postman_collection.json
 
 
-# CONFIGURAÇÕES DO APPLICATION.PROPERTIES*******************************
+# CONFIGURAÇÕES DO APPLICATION.PROPERTIES
 Alterar somente os campos abaixo de acordo com os servidores de aplicação de cada um
 
 
@@ -36,6 +36,6 @@ Obs. Na configuração de E-MAIL posso passar o meu próprio, pois para o envio 
 UPDATE USER SET EMAIL = '##############@#######.COM' WHERE 1=1;
 
 
-# ELASTICSEARCH*****************************************************
+# ELASTICSEARCH
 Para conseguir fazer a chamada no Elasticsearch pelo http sem certificado é necessário alterar a configuração do arquivo \config\elasticsearch.yml conforme abaixo:
 xpack.security.enabled: false
