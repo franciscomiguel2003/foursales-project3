@@ -31,8 +31,8 @@ Obs. Na configuração de E-MAIL posso passar o meu próprio, pois para o envio 
 
 
 # CONFIGURAÇÕES ADICIONAIS
--------- ATUALIZAR O E-MAIL NA TABELA DE USUÁRIOS ------------
--- VOCÊ RECEBERÁ UM E-MAIL QUANDO UM PEDIDO FOR CANCELADO
+# ATUALIZAR O E-MAIL NA TABELA DE USUÁRIOS ------------
+VOCÊ RECEBERÁ UM E-MAIL QUANDO UM PEDIDO FOR CANCELADO
 UPDATE USER SET EMAIL = '##############@#######.COM' WHERE 1=1;
 
 
