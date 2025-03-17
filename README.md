@@ -20,10 +20,10 @@ spring.datasource.password=############
 #Configurações do Kafka
 spring.kafka.bootstrap-servers=##############:####
 
-# Configuração do Elasticsearch
+#Configuração do Elasticsearch
 spring.elasticsearch.uris=http://###########:####
 
-# Configuracao de email
+#Configuracao de email
 spring.mail.username==############
 spring.mail.password==############
 
@@ -31,8 +31,7 @@ Obs. Na configuração de E-MAIL posso passar o meu próprio, pois para o envio 
 
 
 # CONFIGURAÇÕES ADICIONAIS
-# ATUALIZAR O E-MAIL NA TABELA DE USUÁRIOS ------------
-VOCÊ RECEBERÁ UM E-MAIL QUANDO UM PEDIDO FOR CANCELADO
+ATUALIZAR O E-MAIL NA TABELA DE USUÁRIOS PARA VOCÊ RECEBER UM E-MAIL QUANDO UM PEDIDO FOR CANCELADO
 UPDATE USER SET EMAIL = '##############@#######.COM' WHERE 1=1;
 
 
