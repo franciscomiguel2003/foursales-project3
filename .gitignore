@@ -41,3 +41,4 @@ bin/
 ### Mac OS ###
 .DS_Store
 /logs/fourSales.log
+/logs/fourSales.log.2025-03-16.0.gz
