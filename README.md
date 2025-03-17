@@ -38,4 +38,5 @@ UPDATE USER SET EMAIL = '##############@#######.COM' WHERE 1=1;
 
 # ELASTICSEARCH
 Para conseguir fazer a chamada no Elasticsearch pelo http sem certificado é necessário alterar a configuração do arquivo \config\elasticsearch.yml conforme abaixo:
+
 xpack.security.enabled: false
