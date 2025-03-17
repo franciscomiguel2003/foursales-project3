@@ -12,18 +12,22 @@ Alterar somente os campos abaixo de acordo com os servidores de aplicação de c
 
 
 # Configuração do MySQL
+
 spring.datasource.url=jdbc:mysql://#######:####/FOURSALESDB?allowPublicKeyRetrieval=true&useSSL=false
 spring.datasource.username=#####
 spring.datasource.password=############
 
 
 #Configurações do Kafka
+
 spring.kafka.bootstrap-servers=##############:####
 
 #Configuração do Elasticsearch
+
 spring.elasticsearch.uris=http://###########:####
 
 #Configuracao de email
+
 spring.mail.username==############
 spring.mail.password==############
 
